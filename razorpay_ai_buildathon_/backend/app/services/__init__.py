@@ -1,9 +1,14 @@
 """
-Services package — reserved for Phase 2.
+Services package — Phase 3.1 reconciliation service.
 
-Will contain:
-  - ReconciliationService
+reconciliation.py — ReconciliationService (stateless, in-memory)
+
+Planned (Phase 4):
   - AuditService
   - ExceptionService
-  - AgentInvestigationService (Phase 4)
+  - AgentInvestigationService
 """
+
+from app.services.reconciliation import ReconciliationService
+
+__all__ = ["ReconciliationService"]
