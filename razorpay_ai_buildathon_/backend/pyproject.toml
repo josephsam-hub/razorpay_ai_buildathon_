@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=72", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ledgerlens-backend"
+version = "0.1.0"
+description = "LedgerLens — Evidence-First AI Finance Controller"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic-settings>=2.0",
+    "pyyaml>=6.0",
+    "faker>=30.0",
+]
+
+[project.optional-dependencies]
+parquet = [
+    "polars>=1.0",
+]
+dev = [
+    "pytest>=8.0",
+    "httpx>=0.27",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]

@@ -1,0 +1,43 @@
+# LedgerLens Synthetic Dataset — v1 (baseline, n=100, seed=42)
+# This is the canonical development dataset.
+# Run: python -m app.data.generator --config data/synthetic/config_v1.yaml --output data/synthetic/generated/v1_seed42
+
+version: "1.0"
+n_payments: 100
+n_merchants: 5
+seed: 42
+currency: INR
+
+start_date: "2026-08-01"
+end_date: "2026-08-31"
+
+payment_amount:
+  min_amount: "100.00"
+  max_amount: "50000.00"
+  round_to_paisa: true
+
+merchant_tiers:
+  T1:
+    fee_rate: "0.0175"
+    settlement_cycle_days: 1
+  T2:
+    fee_rate: "0.0200"
+    settlement_cycle_days: 2
+  T3:
+    fee_rate: "0.0250"
+    settlement_cycle_days: 3
+
+corruption:
+  missing_settlement: 0.05
+  missing_bank_entry: 0.04
+  missing_ledger_entry: 0.04
+  amount_mismatch: 0.05
+  date_mismatch: 0.04
+  duplicate_bank_entry: 0.03
+  settlement_fee_variance: 0.03
+  orphan_bank_entry: 0.02
+
+min_batch_size: 1
+max_batch_size: 5
+
+output_parquet: false
