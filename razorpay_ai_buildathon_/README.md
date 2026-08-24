@@ -125,7 +125,7 @@ See [AGENTS.md](./AGENTS.md) — all contributors must read this.
 
 - [x] Phase 0 — Repository setup & Git sync
 - [x] Phase 1 — Project foundation skeleton
-- [ ] Phase 2 — Synthetic data generator + domain models
+- [x] Phase 2 — Synthetic data generator + domain models
 - [ ] Phase 3 — Deterministic reconciliation engine
 - [ ] Phase 4 — Agent investigation layer
 - [ ] Phase 5 — Frontend dashboard
