@@ -2,21 +2,14 @@
 Shared fixtures for Phase 3.2 evaluation tests.
 
 Fixtures build minimal domain objects in-memory — no file I/O, no DB.
-DATABASE_URL env-var workaround mirrors test_health.py pattern.
 """
 
 from __future__ import annotations
 
-import os
 from datetime import date, datetime, timezone
 from decimal import Decimal
 
 import pytest
-
-os.environ.setdefault(
-    "DATABASE_URL",
-    "postgresql://ledgerlens:CHANGE_ME@localhost:5432/ledgerlens",
-)
 
 from app.data.generator.config import DatasetConfig
 from app.data.generator.models import (

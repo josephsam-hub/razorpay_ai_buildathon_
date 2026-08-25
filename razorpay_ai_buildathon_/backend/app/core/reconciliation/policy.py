@@ -60,3 +60,42 @@ SETTLEMENT_DATE_MAX_DAYS_AFTER_PAYMENT: int = 31
 #
 # TBD — Phase 3.2 calibration.
 SETTLEMENT_DATE_MIN_DAYS_BEFORE_PAYMENT: int = 0
+
+
+# ---------------------------------------------------------------------------
+# V003 — Bank entry timing window
+# ---------------------------------------------------------------------------
+# The maximum number of calendar days that bank.value_date may lag AFTER
+# settlement.settlement_date.
+#
+# Clean-world generator invariant (from bank.py):
+#   value_date = settlement_date + 0 or 1 days (seeded)
+# Therefore the maximum legitimate delta is 1.
+#
+# TBD — expand if weekend/holiday offsets are introduced in real-world data.
+V003_MAX_DAYS_AFTER_SETTLEMENT: int = 1
+
+# ---------------------------------------------------------------------------
+# V004 — Ledger posting timing window
+# ---------------------------------------------------------------------------
+# The maximum number of calendar days that ledger.posting_date may lag AFTER
+# bank.value_date.
+#
+# Clean-world generator invariant (from ledger.py):
+#   posting_date = value_date + 0, 1, or 2 days (seeded)
+# Therefore the maximum legitimate delta is 2.
+#
+# TBD — expand if ERP processing delays are introduced.
+V004_MAX_DAYS_AFTER_VALUE: int = 2
+
+# ---------------------------------------------------------------------------
+# CS004 — Composite date window
+# ---------------------------------------------------------------------------
+# The maximum calendar-day distance between settlement_date and payment_date
+# that still scores > 0.0 in the CS004 composite signal.
+#
+# Rationale: maximum settlement cycle (3 days) + maximum E005 date-mismatch
+# shift (5 days) = 8 days as a conservative outer bound.
+#
+# TBD — REQUIRES SPECIFICATION: exact tolerance and scoring function.
+CS004_MAX_DATE_DISTANCE_DAYS: int = 8

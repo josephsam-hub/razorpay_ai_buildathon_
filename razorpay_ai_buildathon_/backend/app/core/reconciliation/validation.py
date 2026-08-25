@@ -23,6 +23,10 @@ from typing import Literal
 from app.models.canonical import CanonicalTransaction
 from app.models.decisions import ValidationFinding
 from app.models.exceptions import REC_E004
+from app.core.reconciliation.policy import (
+    V003_MAX_DAYS_AFTER_SETTLEMENT,
+    V004_MAX_DAYS_AFTER_VALUE,
+)
 
 
 def run_validation(ct: CanonicalTransaction) -> list[ValidationFinding]:
@@ -87,14 +91,20 @@ def run_validation(ct: CanonicalTransaction) -> list[ValidationFinding]:
     # ------------------------------------------------------------------
     if ct.has_settlement and ct.has_bank_entry and ct.value_date is not None:
         delta_v003 = (ct.value_date - ct.settlement_date).days
-        passed_v003 = 0 <= delta_v003 <= 1
+        passed_v003 = 0 <= delta_v003 <= V003_MAX_DAYS_AFTER_SETTLEMENT
         findings.append(
             ValidationFinding(
                 rule_id="V003",
-                rule_description="Bank entry value date must be within 0 to 1 days after the settlement date.",
+                rule_description=(
+                    f"Bank entry value date must be within 0 to "
+                    f"{V003_MAX_DAYS_AFTER_SETTLEMENT} days after the settlement date."
+                ),
                 passed=passed_v003,
                 severity="ERROR",
-                expected_relationship=f"0 <= value_date - settlement_date ({ct.settlement_date}) <= 1",
+                expected_relationship=(
+                    f"0 <= value_date - settlement_date ({ct.settlement_date}) "
+                    f"<= {V003_MAX_DAYS_AFTER_SETTLEMENT}"
+                ),
                 observed_relationship=f"value_date = {ct.value_date}",
                 delta=f"{delta_v003:+d} days",
                 affected_record_ids=[ct.settlement_id, ct.bank_entry_id],
@@ -107,14 +117,20 @@ def run_validation(ct: CanonicalTransaction) -> list[ValidationFinding]:
     # ------------------------------------------------------------------
     if ct.has_bank_entry and ct.has_ledger_entry and ct.posting_date is not None:
         delta_v004 = (ct.posting_date - ct.value_date).days
-        passed_v004 = 0 <= delta_v004 <= 2
+        passed_v004 = 0 <= delta_v004 <= V004_MAX_DAYS_AFTER_VALUE
         findings.append(
             ValidationFinding(
                 rule_id="V004",
-                rule_description="Ledger posting date must be within 0 to 2 days after the bank entry value date.",
+                rule_description=(
+                    f"Ledger posting date must be within 0 to "
+                    f"{V004_MAX_DAYS_AFTER_VALUE} days after the bank entry value date."
+                ),
                 passed=passed_v004,
                 severity="ERROR",
-                expected_relationship=f"0 <= posting_date - value_date ({ct.value_date}) <= 2",
+                expected_relationship=(
+                    f"0 <= posting_date - value_date ({ct.value_date}) "
+                    f"<= {V004_MAX_DAYS_AFTER_VALUE}"
+                ),
                 observed_relationship=f"posting_date = {ct.posting_date}",
                 delta=f"{delta_v004:+d} days",
                 affected_record_ids=[ct.bank_entry_id, ct.ledger_entry_id],

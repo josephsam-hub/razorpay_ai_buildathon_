@@ -7,23 +7,11 @@ Verifies:
 - status field is "ok"
 - service name is present
 - version field is present
-
-DATABASE_URL is set as an environment variable before the app is imported
-so that Pydantic Settings does not raise a validation error during tests.
-This is a placeholder value — no real database connection is made in Phase 1.
 """
 
-import os
+from fastapi.testclient import TestClient
 
-# Must be set before app imports so Pydantic Settings can resolve DATABASE_URL.
-os.environ.setdefault(
-    "DATABASE_URL",
-    "postgresql://ledgerlens:CHANGE_ME@localhost:5432/ledgerlens",
-)
-
-from fastapi.testclient import TestClient  # noqa: E402
-
-from app.main import app  # noqa: E402
+from app.main import app
 
 client = TestClient(app)
 

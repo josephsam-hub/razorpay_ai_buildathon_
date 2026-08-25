@@ -2,23 +2,14 @@
 Shared fixtures for Phase 3.1 reconciliation tests.
 
 All fixtures build domain objects directly — no file I/O, no database.
-The DATABASE_URL env var workaround (from test_health.py) is replicated
-here so that importing app modules does not crash pydantic-settings.
 """
 
 from __future__ import annotations
 
-import os
 from datetime import date, datetime, timezone
 from decimal import Decimal
 
 import pytest
-
-# Must be set before any app import so Pydantic Settings resolves DATABASE_URL.
-os.environ.setdefault(
-    "DATABASE_URL",
-    "postgresql://ledgerlens:CHANGE_ME@localhost:5432/ledgerlens",
-)
 
 from app.data.generator.models import (
     BankEntry,

@@ -43,6 +43,7 @@ from decimal import Decimal
 
 from app.models.canonical import CanonicalTransaction
 from app.models.decisions import MatchEvidence
+from app.core.reconciliation.policy import CS004_MAX_DATE_DISTANCE_DAYS
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -60,7 +61,7 @@ _TWO_PLACES = Decimal("0.01")
 # Phase 3.1 uses the maximum clean settlement cycle (3 days) + max date
 # mismatch shift (5 days) = 8 days as the outer bound for a "within window"
 # check, scoring 1.0 at 0 days and 0.0 beyond 8 days.
-_MAX_DATE_DISTANCE_DAYS = 8
+_MAX_DATE_DISTANCE_DAYS = CS004_MAX_DATE_DISTANCE_DAYS
 
 
 # ---------------------------------------------------------------------------
