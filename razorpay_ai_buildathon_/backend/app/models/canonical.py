@@ -74,6 +74,7 @@ class CanonicalTransaction(BaseModel):
     )
     latest_payment_date_in_settlement: date | None = None
     settlement_cycle_days: int | None = None
+    merchant_fee_rate: Decimal | None = None
 
 
     # Fix 2: flag set by the engine when the normaliser detected multiple bank

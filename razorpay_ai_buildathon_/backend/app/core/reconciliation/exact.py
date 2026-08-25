@@ -373,6 +373,41 @@ def run_exact_match(ct: CanonicalTransaction) -> ExactMatchResult:
             "<duplicate detected>",
             REC_E003,
         )
+    # ------------------------------------------------------------------
+    # R014 — Settlement fee contract validation (Phase 3.3)
+    # ------------------------------------------------------------------
+    from decimal import ROUND_HALF_UP
+    if ct.merchant_fee_rate is None or ct.settlement_gross_amount is None:
+        # NOT_EVALUABLE: must NOT block AUTO_MATCH, must NOT create an exception, must NOT crash
+        _rule(
+            "R014",
+            "Settlement fee contract compliance (NOT_EVALUABLE: missing fee_rate or gross)",
+            "settlement_net_amount",
+            True,  # Pass to not block AUTO_MATCH
+            f"gross={ct.settlement_gross_amount}, fee_rate={ct.merchant_fee_rate}",
+            f"net={ct.settlement_net_amount}",
+            None,
+        )
+    else:
+        gross = ct.settlement_gross_amount
+        fee_rate = ct.merchant_fee_rate
+        observed_net = ct.settlement_net_amount if ct.settlement_net_amount is not None else _ZERO
+
+        expected_fee = (gross * fee_rate).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        expected_net = gross - expected_fee
+
+        matched_r014 = (ct.settlement_net_amount == expected_net)
+        delta_r014 = (observed_net - expected_net)
+
+        _rule(
+            "R014",
+            f"Settlement net matches merchant contract fee rate (expected_fee={expected_fee}, expected_net={expected_net}, delta={delta_r014:+})",
+            "settlement_net_amount",
+            matched_r014,
+            f"gross={gross}, fee_rate={fee_rate}, expected_fee={expected_fee}, expected_net={expected_net}",
+            f"observed_net={ct.settlement_net_amount}, delta={delta_r014}, status={'PASS' if matched_r014 else 'FAIL'}",
+            REC_E002 if not matched_r014 else None,
+        )
 
     # ------------------------------------------------------------------
     # Aggregate result

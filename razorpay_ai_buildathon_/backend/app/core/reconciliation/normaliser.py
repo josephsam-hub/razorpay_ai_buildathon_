@@ -107,6 +107,7 @@ def normalise(observed: ObservedWorld) -> NormaliserResult:
 
         merchant = merchant_map.get(payment.merchant_id)
         settlement_cycle_days = merchant.settlement_cycle_days if merchant else None
+        merchant_fee_rate = merchant.fee_rate if merchant else None
 
         latest_payment_date_in_settlement = None
         if settlement:
@@ -138,6 +139,7 @@ def normalise(observed: ObservedWorld) -> NormaliserResult:
             settlement_payment_ids=list(settlement.payment_ids) if settlement else [],
             latest_payment_date_in_settlement=latest_payment_date_in_settlement,
             settlement_cycle_days=settlement_cycle_days,
+            merchant_fee_rate=merchant_fee_rate,
 
             # Bank entry layer
             bank_entry_id=bank_entry.bank_entry_id if bank_entry else None,
