@@ -20,6 +20,13 @@ from app.models.decisions import (
 )
 from app.models.exceptions import ExceptionRecord
 from app.models.reconciliation_input import ReconciliationBatch, from_observed_world
+from app.models.investigation import (
+    InvestigationContext,
+    PaymentEvidenceResponse,
+    PolicyRulesResponse,
+    BatchOrphansResponse,
+    InvestigationReport,
+)
 from app.models.evaluation import (
     AggregateEvaluationReport,
     BatchIntegrityResult,
@@ -46,6 +53,11 @@ __all__ = [
     "ExceptionRecord",
     "ReconciliationBatch",
     "from_observed_world",
+    "InvestigationContext",
+    "PaymentEvidenceResponse",
+    "PolicyRulesResponse",
+    "BatchOrphansResponse",
+    "InvestigationReport",
     # Phase 3.2
     "AggregateEvaluationReport",
     "BatchIntegrityResult",

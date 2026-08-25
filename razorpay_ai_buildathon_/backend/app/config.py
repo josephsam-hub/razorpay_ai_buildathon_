@@ -31,6 +31,12 @@ class Settings(BaseSettings):
     # features are enabled. Do not add a default containing credentials.
     database_url: str | None = None
 
+    # Gemini AI configuration
+    gemini_api_key: str | None = None
+    gemini_model: str = "gemini-2.5-flash"
+    gemini_timeout_seconds: float = 3.0
+    gemini_max_retries: int = 3
+
     def get_database_url(self) -> str:
         """
         Return the database URL.
