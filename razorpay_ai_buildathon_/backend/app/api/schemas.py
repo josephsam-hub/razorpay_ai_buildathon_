@@ -7,7 +7,7 @@ Defines Pydantic models for API request validation and response serialisation.
 from __future__ import annotations
 
 from typing import Any, Optional
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.data.generator import models as gen_models
 from app.models.decisions import BatchReconciliationResult
@@ -96,3 +96,24 @@ class ReconciliationRunResponse(BaseModel):
     """
     reconciliation_result: BatchReconciliationResult
     exceptions: list[ExceptionRecord]
+
+from app.models.investigation import InvestigationReport
+
+class InvestigationRunRequest(ReconciliationRunRequest):
+    """Request contract for investigating one payment in an observed batch."""
+
+    target_payment_id: str = Field(description="Payment ID to investigate")
+
+    @field_validator("target_payment_id")
+    @classmethod
+    def target_payment_id_not_empty(cls, value: str) -> str:
+        if not value or value.strip() == "":
+            raise ValueError("target_payment_id cannot be empty or whitespace")
+        return value
+
+class InvestigationRunResponse(BaseModel):
+    """Deterministic reconciliation output plus the bounded investigation report."""
+
+    deterministic_reconciliation: BatchReconciliationResult
+    exceptions: list[ExceptionRecord]
+    investigation_report: InvestigationReport
