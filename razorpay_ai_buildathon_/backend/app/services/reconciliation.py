@@ -33,6 +33,7 @@ from datetime import datetime, timezone
 from app.data.generator.world import ObservedWorld
 from app.models.decisions import BatchReconciliationResult
 from app.models.exceptions import ExceptionRecord
+from app.models.reconciliation_input import ReconciliationBatch
 from app.core.reconciliation.normaliser import normalise
 from app.core.reconciliation.engine import reconcile_from_normaliser
 
@@ -45,6 +46,56 @@ class ReconciliationService:
     No database, no persistence, no external calls.
     """
 
+    def reconcile_batch(
+        self,
+        batch: ReconciliationBatch,
+        batch_id: str | None = None,
+        now: datetime | None = None,
+    ) -> tuple[BatchReconciliationResult, list[ExceptionRecord]]:
+        """
+        Reconcile all payments in a ReconciliationBatch.
+
+        Parameters
+        ----------
+        batch:
+            The ReconciliationBatch containing observed financial records.
+        batch_id:
+            Optional stable identifier for this batch. Defaults to a
+            deterministic ID derived from the first payment date and
+            payment count.
+        now:
+            Optional UTC timestamp for audit fields. Defaults to
+            datetime.now(tz=timezone.utc). Never affects matching logic.
+
+        Returns
+        -------
+        (BatchReconciliationResult, list[ExceptionRecord])
+            BatchReconciliationResult.orphan_records contains orphans.
+        """
+        if now is None:
+            now = datetime.now(tz=timezone.utc)
+
+        if batch_id is None:
+            if batch.payments:
+                first_date = min(p.payment_date for p in batch.payments)
+                batch_id = (
+                    f"BATCH_{first_date.strftime('%Y%m%d')}_{len(batch.payments):04d}"
+                )
+            else:
+                batch_id = "BATCH_EMPTY"
+
+        # Step 1 — Normalise
+        norm_result = normalise(batch)
+
+        # Step 2 — Reconcile with full duplicate/orphan awareness
+        result, exceptions = reconcile_from_normaliser(
+            norm_result=norm_result,
+            batch_id=batch_id,
+            now=now,
+        )
+
+        return result, exceptions
+
     def reconcile(
         self,
         observed: ObservedWorld,
@@ -52,7 +103,7 @@ class ReconciliationService:
         now: datetime | None = None,
     ) -> tuple[BatchReconciliationResult, list[ExceptionRecord]]:
         """
-        Reconcile all payments in the ObservedWorld.
+        Legacy compatibility path. Adapts ObservedWorld to ReconciliationBatch.
 
         Parameters
         ----------
@@ -71,28 +122,8 @@ class ReconciliationService:
         Returns
         -------
         (BatchReconciliationResult, list[ExceptionRecord])
-            BatchReconciliationResult.orphan_records contains Fix 4 orphans.
+            BatchReconciliationResult.orphan_records contains orphans.
         """
-        if now is None:
-            now = datetime.now(tz=timezone.utc)
-
-        if batch_id is None:
-            if observed.payments:
-                first_date = min(p.payment_date for p in observed.payments)
-                batch_id = (
-                    f"BATCH_{first_date.strftime('%Y%m%d')}_{len(observed.payments):04d}"
-                )
-            else:
-                batch_id = "BATCH_EMPTY"
-
-        # Step 1 — Normalise (returns duplicates and orphans too)
-        norm_result = normalise(observed)
-
-        # Step 2 — Reconcile with full duplicate/orphan awareness
-        result, exceptions = reconcile_from_normaliser(
-            norm_result=norm_result,
-            batch_id=batch_id,
-            now=now,
-        )
-
-        return result, exceptions
+        from app.models.reconciliation_input import from_observed_world
+        batch = from_observed_world(observed)
+        return self.reconcile_batch(batch, batch_id=batch_id, now=now)

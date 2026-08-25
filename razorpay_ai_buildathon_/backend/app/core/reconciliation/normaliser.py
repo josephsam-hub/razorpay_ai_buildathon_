@@ -40,10 +40,11 @@ RELATIONSHIP RESOLUTION ORDER:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
 from app.data.generator.models import BankEntry, LedgerEntry, Settlement
-from app.data.generator.world import ObservedWorld
 from app.models.canonical import CanonicalTransaction
+from app.models.reconciliation_input import ReconciliationBatch
 
 
 @dataclass
@@ -79,27 +80,33 @@ class NormaliserResult:
         )
 
 
-def normalise(observed: ObservedWorld) -> NormaliserResult:
+def normalise(input: ReconciliationBatch | Any) -> NormaliserResult:
     """
-    Full normalisation pass over an ObservedWorld.
+    Full normalisation pass over a ReconciliationBatch or ObservedWorld.
 
     Returns a NormaliserResult with canonical transactions, duplicates,
     and orphans. Never mutates any input object.
     """
-    known_payment_ids: set[str] = {p.payment_id for p in observed.payments}
-    known_settlement_refs: set[str] = {s.settlement_ref for s in observed.settlements}
+    if isinstance(input, ReconciliationBatch):
+        batch = input
+    else:
+        from app.models.reconciliation_input import from_observed_world
+        batch = from_observed_world(input)
+
+    known_payment_ids: set[str] = {p.payment_id for p in batch.payments}
+    known_settlement_refs: set[str] = {s.settlement_ref for s in batch.settlements}
 
     # -- Build lookup maps --
-    payment_to_settlement = _build_payment_to_settlement(observed)
-    ref_to_bank, duplicate_banks = _build_ref_to_bank_with_duplicates(observed)
-    payment_to_ledger, duplicate_ledgers = _build_payment_to_ledger_with_duplicates(observed)
-    merchant_map = {m.merchant_id: m for m in observed.merchants}
-    payment_map = {p.payment_id: p for p in observed.payments}
+    payment_to_settlement = _build_payment_to_settlement(batch)
+    ref_to_bank, duplicate_banks = _build_ref_to_bank_with_duplicates(batch)
+    payment_to_ledger, duplicate_ledgers = _build_payment_to_ledger_with_duplicates(batch)
+    merchant_map = {m.merchant_id: m for m in batch.merchants}
+    payment_map = {p.payment_id: p for p in batch.payments}
 
     # -- Build canonical transactions --
     canonical_list: list[CanonicalTransaction] = []
 
-    for payment in observed.payments:
+    for payment in batch.payments:
         pid = payment.payment_id
         settlement = payment_to_settlement.get(pid)
         bank_entry = ref_to_bank.get(settlement.settlement_ref) if settlement else None
@@ -162,9 +169,9 @@ def normalise(observed: ObservedWorld) -> NormaliserResult:
     canonical_list.sort(key=lambda c: c.payment_id)
 
     # -- Fix 4: Detect orphan records --
-    orphan_banks = _find_orphan_bank_entries(observed, known_settlement_refs)
-    orphan_settlements = _find_orphan_settlements(observed, known_payment_ids)
-    orphan_ledgers = _find_orphan_ledger_entries(observed, known_payment_ids)
+    orphan_banks = _find_orphan_bank_entries(batch, known_settlement_refs)
+    orphan_settlements = _find_orphan_settlements(batch, known_payment_ids)
+    orphan_ledgers = _find_orphan_ledger_entries(batch, known_payment_ids)
 
     return NormaliserResult(
         canonical_transactions=canonical_list,
@@ -180,12 +187,12 @@ def normalise(observed: ObservedWorld) -> NormaliserResult:
 # Internal helpers — deterministic map builders
 # ---------------------------------------------------------------------------
 
-def _build_payment_to_settlement(observed: ObservedWorld) -> dict:
+def _build_payment_to_settlement(batch: ReconciliationBatch) -> dict:
     """
     Map payment_id → Settlement.
     Settlements sorted by settlement_id; first one found for a pid wins.
     """
-    sorted_settlements = sorted(observed.settlements, key=lambda s: s.settlement_id)
+    sorted_settlements = sorted(batch.settlements, key=lambda s: s.settlement_id)
     mapping: dict = {}
     for s in sorted_settlements:
         for pid in s.payment_ids:
@@ -195,7 +202,7 @@ def _build_payment_to_settlement(observed: ObservedWorld) -> dict:
 
 
 def _build_ref_to_bank_with_duplicates(
-    observed: ObservedWorld,
+    batch: ReconciliationBatch,
 ) -> tuple[dict, list[BankEntry]]:
     """
     Map settlement_ref → primary BankEntry (smallest bank_entry_id wins).
@@ -203,7 +210,7 @@ def _build_ref_to_bank_with_duplicates(
 
     Fix 2: duplicates are NEVER discarded — they are returned for exception routing.
     """
-    sorted_banks = sorted(observed.bank_entries, key=lambda b: b.bank_entry_id)
+    sorted_banks = sorted(batch.bank_entries, key=lambda b: b.bank_entry_id)
     mapping: dict = {}
     duplicates: list[BankEntry] = []
 
@@ -217,7 +224,7 @@ def _build_ref_to_bank_with_duplicates(
 
 
 def _build_payment_to_ledger_with_duplicates(
-    observed: ObservedWorld,
+    batch: ReconciliationBatch,
 ) -> tuple[dict, list[LedgerEntry]]:
     """
     Map payment_id → primary LedgerEntry (smallest ledger_entry_id wins).
@@ -225,7 +232,7 @@ def _build_payment_to_ledger_with_duplicates(
 
     Fix 2: duplicates are NEVER discarded.
     """
-    sorted_ledgers = sorted(observed.ledger_entries, key=lambda le: le.ledger_entry_id)
+    sorted_ledgers = sorted(batch.ledger_entries, key=lambda le: le.ledger_entry_id)
     mapping: dict = {}
     duplicates: list[LedgerEntry] = []
 
@@ -243,7 +250,7 @@ def _build_payment_to_ledger_with_duplicates(
 # ---------------------------------------------------------------------------
 
 def _find_orphan_bank_entries(
-    observed: ObservedWorld,
+    batch: ReconciliationBatch,
     known_settlement_refs: set[str],
 ) -> list[BankEntry]:
     """
@@ -252,13 +259,13 @@ def _find_orphan_bank_entries(
     Corresponds to Phase 2 E008 (orphan_bank_entry) corruption type.
     """
     return [
-        b for b in observed.bank_entries
+        b for b in batch.bank_entries
         if b.settlement_ref not in known_settlement_refs
     ]
 
 
 def _find_orphan_settlements(
-    observed: ObservedWorld,
+    batch: ReconciliationBatch,
     known_payment_ids: set[str],
 ) -> list[Settlement]:
     """
@@ -266,13 +273,13 @@ def _find_orphan_settlements(
     These are 'orphan' settlements — they reference payments not in this batch.
     """
     return [
-        s for s in observed.settlements
+        s for s in batch.settlements
         if not any(pid in known_payment_ids for pid in s.payment_ids)
     ]
 
 
 def _find_orphan_ledger_entries(
-    observed: ObservedWorld,
+    batch: ReconciliationBatch,
     known_payment_ids: set[str],
 ) -> list[LedgerEntry]:
     """
@@ -280,6 +287,6 @@ def _find_orphan_ledger_entries(
     These are 'orphan' ledger entries — posted against an unknown payment.
     """
     return [
-        le for le in observed.ledger_entries
+        le for le in batch.ledger_entries
         if le.payment_id not in known_payment_ids
     ]

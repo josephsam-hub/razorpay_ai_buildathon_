@@ -19,6 +19,7 @@ from app.models.decisions import (
     ReconciliationDecision,
 )
 from app.models.exceptions import ExceptionRecord
+from app.models.reconciliation_input import ReconciliationBatch, from_observed_world
 from app.models.evaluation import (
     AggregateEvaluationReport,
     BatchIntegrityResult,
@@ -43,6 +44,8 @@ __all__ = [
     "MatchEvidence",
     "ReconciliationDecision",
     "ExceptionRecord",
+    "ReconciliationBatch",
+    "from_observed_world",
     # Phase 3.2
     "AggregateEvaluationReport",
     "BatchIntegrityResult",
