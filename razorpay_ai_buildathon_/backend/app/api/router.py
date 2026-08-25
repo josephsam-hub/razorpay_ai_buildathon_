@@ -17,6 +17,6 @@ api_router = APIRouter()
 
 api_router.include_router(health_router, tags=["health"])
 
-# Phase 2+ placeholders (commented until implemented):
-# from app.api.reconciliation import router as reconciliation_router
-# api_router.include_router(reconciliation_router, prefix="/api/v1/reconciliation", tags=["reconciliation"])
+# Phase 2+ placeholders:
+from app.api.reconciliation import router as reconciliation_router
+api_router.include_router(reconciliation_router, prefix="/api/v1/reconciliation", tags=["reconciliation"])
