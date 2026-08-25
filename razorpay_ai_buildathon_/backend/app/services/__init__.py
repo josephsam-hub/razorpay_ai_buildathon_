@@ -11,6 +11,19 @@ Planned (Phase 4):
 """
 
 from app.services.reconciliation import ReconciliationService
-from app.services.evaluation import EvaluationService
+from app.services.investigation import AgentInvestigationResult, AgentInvestigationService
 
-__all__ = ["ReconciliationService", "EvaluationService"]
+__all__ = [
+  "ReconciliationService",
+  "EvaluationService",
+  "AgentInvestigationResult",
+  "AgentInvestigationService",
+]
+
+
+def __getattr__(name: str):
+  if name == "EvaluationService":
+    from app.services.evaluation import EvaluationService
+
+    return EvaluationService
+  raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
