@@ -217,3 +217,46 @@ def test_invalid_target_is_rejected_before_reconciliation() -> None:
         )
 
     assert reconciliation.calls == 0
+
+
+def test_gemini_fallback_sanitization() -> None:
+    batch, target = _requires_investigation_case()
+
+    # 1. API key missing
+    svc = AgentInvestigationService(gemini_client=FakeGemini(error=GeminiUnavailableError("Gemini API key is not configured.")))
+    res = svc.investigate(batch, target)
+    assert res.report.status == "UNAVAILABLE"
+    assert res.report.agent_explanation == "AI investigation fallback: Gemini API key is not configured."
+
+    # 2. Timeout
+    svc = AgentInvestigationService(gemini_client=FakeGemini(error=GeminiUnavailableError("Gemini API request timed out.")))
+    res = svc.investigate(batch, target)
+    assert res.report.status == "UNAVAILABLE"
+    assert res.report.agent_explanation == "AI investigation fallback: Gemini API request timed out."
+
+    # 3. Malformed / Validation error
+    from pydantic import ValidationError
+    from pydantic_core import InitErrorDetails, PydanticCustomError
+    val_err = ValidationError.from_exception_data(
+        title="test",
+        line_errors=[
+            InitErrorDetails(
+                type=PydanticCustomError("missing", "Field missing"),
+                loc=("test_field",),
+                input=None
+            )
+        ]
+    )
+    svc = AgentInvestigationService(gemini_client=FakeGemini(error=val_err))
+    res = svc.investigate(batch, target)
+    assert res.report.status == "INVALID_OUTPUT"
+    assert res.report.agent_explanation == "AI investigation fallback: Gemini returned invalid content or schema validation failed."
+
+    # 4. Generic provider exception containing path/credentials/URL
+    svc = AgentInvestigationService(gemini_client=FakeGemini(error=RuntimeError("Fail: path=C:/Users/key.txt url=http://bad api_key=123")))
+    res = svc.investigate(batch, target)
+    assert res.report.status == "UNAVAILABLE"
+    assert res.report.agent_explanation == "AI investigation fallback: Gemini API request failed."
+    assert "Users" not in res.report.agent_explanation
+    assert "bad" not in res.report.agent_explanation
+    assert "api_key" not in res.report.agent_explanation

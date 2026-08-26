@@ -164,7 +164,7 @@ class AgentInvestigationService:
                 payment_id=target_payment_id,
                 reconciliation_confidence=decision.confidence,
                 status="INVALID_OUTPUT",
-                error_message=f"Invalid Gemini output: {error}",
+                error_message=AgentInvestigationService._sanitize_gemini_error(error),
             )
         except GeminiUnavailableError as error:
             status = "INVALID_OUTPUT" if self._is_invalid_output_error(error) else "UNAVAILABLE"
@@ -173,7 +173,7 @@ class AgentInvestigationService:
                 payment_id=target_payment_id,
                 reconciliation_confidence=decision.confidence,
                 status=status,
-                error_message=str(error),
+                error_message=AgentInvestigationService._sanitize_gemini_error(error),
             )
         except Exception as error:
             report = InvestigationReport.build_fallback(
@@ -181,7 +181,7 @@ class AgentInvestigationService:
                 payment_id=target_payment_id,
                 reconciliation_confidence=decision.confidence,
                 status="UNAVAILABLE",
-                error_message=f"Gemini investigation failed: {error}",
+                error_message=AgentInvestigationService._sanitize_gemini_error(error),
             )
 
         return AgentInvestigationResult(result, exceptions, report)
@@ -258,3 +258,16 @@ class AgentInvestigationService:
             return True
         text = str(error).lower()
         return any(marker in text for marker in ("malformed", "invalid json", "validation"))
+
+    @staticmethod
+    def _sanitize_gemini_error(error: Exception) -> str:
+        msg = str(error).lower()
+        if msg == "offline":
+            return "offline"
+        if "api key is not configured" in msg:
+            return "Gemini API key is not configured."
+        if any(m in msg for m in ("validation", "malformed", "invalid json", "schema")):
+            return "Gemini returned invalid content or schema validation failed."
+        if any(m in msg for m in ("timeout", "timed out")):
+            return "Gemini API request timed out."
+        return "Gemini API request failed."

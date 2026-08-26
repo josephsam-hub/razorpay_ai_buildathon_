@@ -48,6 +48,28 @@ def test_health_endpoint_regression() -> None:
     assert response.json()["status"] == "ok"
 
 
+def test_run_reconciliation_unhandled_exception_sanitization(monkeypatch) -> None:
+    def mock_reconcile_batch(*args, **kwargs):
+        raise RuntimeError(
+            "Sensitive error: secret_key=12345_ABCDB path=C:\\Users\\admin\\db.sqlite "
+            "url=http://private-api.internal class=DatabaseFailure"
+        )
+
+    monkeypatch.setattr(ReconciliationService, "reconcile_batch", mock_reconcile_batch)
+
+    payload = _build_valid_payload()
+    response = client.post("/api/v1/reconciliation/run", json=payload)
+
+    assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+    assert response.json() == {"detail": "Internal reconciliation failure."}
+
+    raw_text = response.text
+    assert "secret_key" not in raw_text
+    assert "Users" not in raw_text
+    assert "private-api" not in raw_text
+    assert "DatabaseFailure" not in raw_text
+
+
 # ── Valid Requests & Parity Checks ───────────────────────────────────────────
 
 def test_run_reconciliation_valid_clean_batch() -> None:

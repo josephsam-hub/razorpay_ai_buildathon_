@@ -12,6 +12,9 @@ from app.api.schemas import ReconciliationRunRequest, ReconciliationRunResponse
 from app.models.reconciliation_input import ReconciliationBatch
 from app.services.reconciliation import ReconciliationService
 
+import logging
+
+logger = logging.getLogger("api.reconciliation")
 router = APIRouter()
 
 
@@ -43,9 +46,10 @@ def run_reconciliation(
     try:
         result, exceptions = service.reconcile_batch(batch, batch_id=request.batch_id or None)
     except Exception as e:
+        logger.error(f"Internal reconciliation failure: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Internal reconciliation failure: {str(e)}",
+            detail="Internal reconciliation failure.",
         )
 
     return ReconciliationRunResponse(
