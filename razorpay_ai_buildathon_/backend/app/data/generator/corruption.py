@@ -209,21 +209,28 @@ def corrupt_date_mismatch(
     event_seed: int,
     corruption_id: str,
     payment_date: date | None = None,
+    settlement_date: date | None = None,
 ) -> tuple[BankEntry, CorruptionEvent]:
     """
-    Shift bank_entry.value_date by 1–5 days forward or backward.
+    Shift bank_entry.value_date forward or backward.
+    Ensures that the new date always falls outside the [0, 1] days window from settlement_date.
     CC-2: Clamp so the resulting date is never before payment_date.
     """
     rng = random.Random(event_seed)  # noqa: S311
     original_date = bank_entry.value_date
+    ref_date = settlement_date if settlement_date is not None else original_date
     shift_days = rng.randint(_DATE_SHIFT_MIN, _DATE_SHIFT_MAX)
     direction = rng.choice([-1, 1])
-    new_date = original_date + timedelta(days=direction * shift_days)
 
-    # CC-2: Clamp — value_date must not be before payment_date
-    if payment_date is not None and new_date < payment_date:
-        # Flip to forward shift instead
-        new_date = original_date + timedelta(days=shift_days)
+    if direction == -1:
+        new_date = ref_date - timedelta(days=shift_days)
+        # CC-2: Clamp — value_date must not be before payment_date
+        if payment_date is not None and new_date < payment_date:
+            # Flip to forward shift: at least 2 days after settlement_date
+            new_date = ref_date + timedelta(days=1 + shift_days)
+    else:
+        # Shift forward: at least 2 days after settlement_date
+        new_date = ref_date + timedelta(days=1 + shift_days)
 
     corrupted = copy.copy(bank_entry)
     object.__setattr__(corrupted, "value_date", new_date)

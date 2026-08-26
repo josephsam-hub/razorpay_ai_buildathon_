@@ -214,6 +214,20 @@ class TestE005DateMismatch:
         )
         assert corrupted.value_date >= payment_date
 
+    def test_shifted_date_always_violates_v003(self):
+        """Verify that value_date is always outside [settlement_date, settlement_date + 1]."""
+        b = _bank_entry()  # value_date = 2026-08-02
+        s = _settlement()  # settlement_date = 2026-08-02
+        # Test 50 different seeds to cover both forward and backward shifts
+        for seed in range(50):
+            corrupted, _ = corrupt_date_mismatch(
+                "PAY_0001", b, seed, "CE_0001",
+                payment_date=date(2026, 8, 1),
+                settlement_date=s.settlement_date,
+            )
+            delta = (corrupted.value_date - s.settlement_date).days
+            assert delta < 0 or delta > 1, f"Seed {seed} failed with delta {delta}"
+
 
 # ---------------------------------------------------------------------------
 # E006 — duplicate_bank_entry

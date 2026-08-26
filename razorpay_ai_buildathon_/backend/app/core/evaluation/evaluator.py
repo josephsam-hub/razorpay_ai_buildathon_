@@ -138,6 +138,31 @@ class Evaluator:
         # ------------------------------------------------------------------
         entity_findings: list[EntityFinding] = []
 
+        # Contamination checks (Model B)
+        payments_in_observed_settlements = set()
+        for s in observed.settlements:
+            for pid in s.payment_ids:
+                payments_in_observed_settlements.add(pid)
+
+        contaminating_corruption_types = {
+            "missing_bank_entry",
+            "amount_mismatch",
+            "date_mismatch",
+            "duplicate_bank_entry",
+            "settlement_fee_variance",
+        }
+        corrupted_pids = {
+            ce.case_id for ce in corruption_events
+            if ce.corruption_type in contaminating_corruption_types
+        }
+
+        contaminated_settlement_ids = set()
+        for s in observed.settlements:
+            if any(pid in corrupted_pids for pid in s.payment_ids):
+                contaminated_settlement_ids.add(s.settlement_id)
+
+        gt_decisions_post: dict[str, str] = {}
+
         tp = fp = tn = fn_clean = abst_clean = abst_corrupt = 0
         unsafe_by_corruption: dict[str, int] = {k: 0 for k in CORRUPTION_MAPPINGS}
 
@@ -149,6 +174,31 @@ class Evaluator:
             gen_type = gt.discrepancy_type  # None for clean
             gen_code = gt.discrepancy_code  # "E001"–"E008" or None
 
+            # Propagate contamination for clean payments (Model B)
+            if gen_type is None:
+                # 1. Missing settlement (E001) contamination
+                if pid not in payments_in_observed_settlements:
+                    gt_decision = "ABSTAIN"
+                    gen_type = "missing_settlement"
+                    gen_code = None  # None for contaminated, not directly corrupted
+                else:
+                    # 2. Other shared evidence contamination
+                    settlement = next((s for s in observed.settlements if pid in s.payment_ids), None)
+                    if settlement and settlement.settlement_id in contaminated_settlement_ids:
+                        gt_decision = "HUMAN_REVIEW"
+                        # Find the corruption type that caused the contamination
+                        batch_corruption_type = None
+                        for b_pid in settlement.payment_ids:
+                            if b_pid in corrupted_pids:
+                                ce = next((c for c in corruption_events if c.case_id == b_pid), None)
+                                if ce:
+                                    batch_corruption_type = ce.corruption_type
+                                    break
+                        if batch_corruption_type:
+                            gen_type = batch_corruption_type
+                            gen_code = None  # None for contaminated, not directly corrupted
+
+            gt_decisions_post[pid] = gt_decision
             expected_rec_codes = get_expected_rec_codes(gen_type) if gen_type else []
 
             # Classify payment outcome
@@ -293,17 +343,13 @@ class Evaluator:
         # Reconciliation Scorecard (A)
         # ------------------------------------------------------------------
         n_total = len(gt_by_pid)
-        # For recall purposes, n_clean includes E008 anchor payments
-        # (whose payment chain is genuinely clean per Fix A).
-        n_clean_gt = sum(1 for gt in ground_truth if gt.expected_decision == "AUTO_MATCH")
-        n_e008_anchors = sum(
-            1 for gt in ground_truth
-            if gt.expected_decision == "HUMAN_REVIEW"
-            and gt.discrepancy_type == "orphan_bank_entry"
+        # For recall purposes, count payments dynamically determined as clean AUTO_MATCH (Model B)
+        n_clean = sum(
+            1 for f in entity_findings
+            if f.entity_type == "payment"
+            and f.payment_outcome in ("TP_MATCH", "ABST_CLEAN", "FN_MISS_CLEAN")
         )
-        # Effective clean count for scorecard recall: GT-clean + E008 anchors
-        n_clean = n_clean_gt + n_e008_anchors
-        # Effective corrupt count: all HUMAN_REVIEW minus E008 anchors
+        # Effective corrupt count
         n_corrupt = n_total - n_clean
         n_am = sum(1 for d in result.decisions if d.decision == "AUTO_MATCH")
         n_hr = sum(1 for d in result.decisions if d.decision == "HUMAN_REVIEW")
@@ -446,8 +492,12 @@ class Evaluator:
         entity_counts = {
             "total_payments": n_total,
             "clean_payments": n_clean,
-            "clean_payments_gt": n_clean_gt,
-            "e008_anchor_payments_reclassified": n_e008_anchors,
+            "clean_payments_gt": sum(1 for gt in ground_truth if gt.expected_decision == "AUTO_MATCH"),
+            "e008_anchor_payments_reclassified": sum(
+                1 for gt in ground_truth
+                if gt.expected_decision == "HUMAN_REVIEW"
+                and gt.discrepancy_type == "orphan_bank_entry"
+            ),
             "corrupted_payments": n_corrupt,
             "total_orphan_entities_injected": n_orphan_injected,
             "total_duplicate_entities_injected": sum(
@@ -517,7 +567,9 @@ def _build_per_corruption_metrics(
         # Payment-level findings for this type
         pf = [
             f for f in entity_findings
-            if f.entity_type == "payment" and f.corruption_type == gen_type
+            if f.entity_type == "payment"
+            and f.corruption_type == gen_type
+            and f.corruption_gen_code is not None
         ]
 
         # E008 orphan findings (entity_type == bank_entry)

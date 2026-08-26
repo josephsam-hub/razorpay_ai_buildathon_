@@ -197,6 +197,46 @@ class TestE008OrphanTwoLevel:
         assert psr.exception_scorecard.total_injected_exceptions >= n_injected
 
 
+class TestModelBContamination:
+    def test_contaminated_evidence_propagates_expected_decision(self):
+        """Verify Model B propagation of batch contamination."""
+        cfg = DatasetConfig.model_validate({
+            "version": "test", "n_payments": 50, "n_merchants": 3,
+            "seed": 45, "currency": "INR",
+            "start_date": "2026-08-01", "end_date": "2026-08-31",
+            "corruption": {k: 0.0 for k in [
+                "missing_settlement", "missing_bank_entry", "missing_ledger_entry",
+                "amount_mismatch", "duplicate_bank_entry",
+                "settlement_fee_variance", "orphan_bank_entry",
+            ]} | {"date_mismatch": 0.20},
+        })
+        psr, _, observed = _run(cfg)
+
+        findings_by_pid = {f.payment_id: f for f in psr.entity_findings if f.entity_type == "payment"}
+
+        direct_corrupted_pids = {gt.payment_id for gt in observed.ground_truth if gt.discrepancy_type is not None}
+
+        contaminated_settlements = set()
+        for s in observed.settlements:
+            if any(pid in direct_corrupted_pids for pid in s.payment_ids):
+                contaminated_settlements.add(s.settlement_id)
+
+        for pid, f in findings_by_pid.items():
+            s = next((x for x in observed.settlements if pid in x.payment_ids), None)
+            if pid in direct_corrupted_pids:
+                assert f.corruption_type is not None
+                assert f.expected_outcome == "HUMAN_REVIEW"
+                assert f.corruption_gen_code is not None
+            elif s and s.settlement_id in contaminated_settlements:
+                assert f.corruption_type == "date_mismatch"
+                assert f.expected_outcome == "HUMAN_REVIEW"
+                assert f.corruption_gen_code is None
+            else:
+                assert f.corruption_type is None
+                assert f.expected_outcome == "AUTO_MATCH"
+                assert f.corruption_gen_code is None
+
+
 class TestGroundTruthIsolation:
     def test_batch_result_has_no_ground_truth_fields(self):
         """BatchReconciliationResult must not expose GroundTruth data."""

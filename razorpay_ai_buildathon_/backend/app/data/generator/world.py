@@ -272,6 +272,7 @@ class WorldBuilder:
                     corrupted_be, event = corrupt_date_mismatch(
                         pid, bank_entry, event_seed, ce_id,
                         payment_date=payment.payment_date,
+                        settlement_date=settlement.settlement_date if settlement else None,
                     )
                     for j, be in enumerate(obs_bank_entries):
                         if be.bank_entry_id == bank_entry.bank_entry_id:
