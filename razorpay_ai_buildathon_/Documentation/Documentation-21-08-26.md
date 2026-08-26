@@ -1,4 +1,4 @@
-# 🧠 Razorpay AI Buildathon 2026 — Track 04
+# ðŸ§  Razorpay AI Buildathon 2026 â€” Track 04
 # AI Finance Controller
 
 > **Mission:** Run the books and the cash position.
@@ -13,7 +13,7 @@
 
 ---
 
-## 📌 Table of Contents
+## ðŸ“Œ Table of Contents
 
 - [1. How We Got Here](#1-how-we-got-here)
 - [2. Track Selection](#2-track-selection)
@@ -57,7 +57,7 @@ The four tracks reviewed were:
 | 03 | AI Revenue Recovery | Detect revenue leakage and execute bounded recovery |
 | **04** | **AI Finance Controller** | **Automate a finance-operations loop such as reconciliation, settlement or forecasting** |
 
-The decision was to focus on **Track 04 — AI Finance Controller**.
+The decision was to focus on **Track 04 â€” AI Finance Controller**.
 
 The official Buildathon page describes the track as:
 
@@ -103,28 +103,28 @@ The track naturally combines:
 That combination gives us an opportunity to build something much deeper than:
 
 ```text
-CSV → LLM → answer
+CSV â†’ LLM â†’ answer
 ```
 
 Instead, the target is:
 
 ```text
 Financial records
-      ↓
+      â†“
 Normalize
-      ↓
+      â†“
 Match
-      ↓
+      â†“
 Verify
-      ↓
+      â†“
 Investigate
-      ↓
+      â†“
 Decide
-      ↓
+      â†“
 Evidence
-      ↓
+      â†“
 Exception / resolution
-      ↓
+      â†“
 Metrics
 ```
 
@@ -151,7 +151,7 @@ Build an agent that closes one finance-ops loop across a **50+ record batch of s
 
 ### Why now?
 
-The track says verification capacity—not generation speed—is the bottleneck.
+The track says verification capacityâ€”not generation speedâ€”is the bottleneck.
 
 Finance operations such as:
 
@@ -176,9 +176,9 @@ A weak implementation:
 
 ```text
 Upload CSV
-  ↓
+  â†“
 Ask GPT to compare rows
-  ↓
+  â†“
 "Everything looks correct"
 ```
 
@@ -187,26 +187,26 @@ This is not enough.
 A stronger implementation:
 
 ```text
-Source A ─────┐
-              ├──> Canonical transaction model
-Source B ─────┤
-              │
-Source C ─────┘
-                     ↓
+Source A â”€â”€â”€â”€â”€â”
+              â”œâ”€â”€> Canonical transaction model
+Source B â”€â”€â”€â”€â”€â”¤
+              â”‚
+Source C â”€â”€â”€â”€â”€â”˜
+                     â†“
              Candidate generation
-                     ↓
+                     â†“
              Deterministic matching
-                     ↓
+                     â†“
              Probabilistic scoring
-                     ↓
+                     â†“
               Evidence retrieval
-                     ↓
+                     â†“
              Root-cause analysis
-                     ↓
-       ┌─────────────┴──────────────┐
-       ↓                            ↓
+                     â†“
+       â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+       â†“                            â†“
    Auto-resolve                 Exception
-       ↓                            ↓
+       â†“                            â†“
    Audit record             Human review queue
 ```
 
@@ -226,7 +226,7 @@ That is much more credible than a generated explanation.
 
 ## Working product concept
 
-### **LedgerLens — Agentic Finance Reconciliation Controller**
+### **LedgerLens â€” Agentic Finance Reconciliation Controller**
 
 > An evidence-first finance operations agent that reconciles multi-source transaction records, diagnoses mismatches, produces auditable decisions, and explicitly escalates uncertain cases.
 
@@ -244,7 +244,7 @@ Build an:
 
 The system has three levels of intelligence:
 
-### Level 1 — Deterministic
+### Level 1 â€” Deterministic
 
 Use:
 
@@ -256,7 +256,7 @@ Use:
 - status compatibility
 - known business rules
 
-### Level 2 — Statistical / ML
+### Level 2 â€” Statistical / ML
 
 Use:
 
@@ -266,7 +266,7 @@ Use:
 - historical matching patterns
 - confidence calibration
 
-### Level 3 — Agentic reasoning
+### Level 3 â€” Agentic reasoning
 
 Use an LLM only when structured logic cannot finish the job:
 
@@ -303,11 +303,11 @@ If the system is uncertain:
 
 ```text
 DO NOT GUESS
-      ↓
+      â†“
 CREATE EXCEPTION
-      ↓
+      â†“
 SHOW EVIDENCE
-      ↓
+      â†“
 REQUEST REVIEW
 ```
 
@@ -323,7 +323,7 @@ Show:
 
 ```text
 100 records
-↓
+â†“
 74 exact matches
 11 probabilistic matches
 9 anomalies
@@ -418,7 +418,7 @@ Different source schemas should map into this model.
 
 Instead of one giant AI model:
 
-### Stage A — Exact matching
+### Stage A â€” Exact matching
 
 Examples:
 
@@ -429,7 +429,7 @@ order_id exact
 reference exact
 ```
 
-### Stage B — Strong composite matching
+### Stage B â€” Strong composite matching
 
 ```text
 merchant_id
@@ -438,7 +438,7 @@ merchant_id
 + date window
 ```
 
-### Stage C — Fuzzy / probabilistic matching
+### Stage C â€” Fuzzy / probabilistic matching
 
 Use features such as:
 
@@ -452,7 +452,7 @@ currency agreement
 status compatibility
 ```
 
-### Stage D — Structural retrieval
+### Stage D â€” Structural retrieval
 
 Retrieve related records through transaction relationships.
 
@@ -460,17 +460,17 @@ Example:
 
 ```text
 Invoice
-  ↓
+  â†“
 Order
-  ↓
+  â†“
 Payment
-  ↓
+  â†“
 Settlement
-  ↓
+  â†“
 Bank statement
 ```
 
-### Stage E — Agent investigation
+### Stage E â€” Agent investigation
 
 Only unresolved cases reach the LLM agent.
 
@@ -554,12 +554,12 @@ Confidence:
 0.97
 
 Evidence:
-✓ Payment ID matched
-✓ Order ID matched
-✓ Amount matched: ₹1,499
-✓ Currency matched: INR
-✓ Transaction date within allowed window
-✓ Settlement record found
+âœ“ Payment ID matched
+âœ“ Order ID matched
+âœ“ Amount matched: â‚¹1,499
+âœ“ Currency matched: INR
+âœ“ Transaction date within allowed window
+âœ“ Settlement record found
 
 Rules:
 R001 exact payment ID
@@ -584,8 +584,8 @@ Confidence:
 0.41
 
 Possible candidates:
-CAND_1 → 0.43
-CAND_2 → 0.41
+CAND_1 â†’ 0.43
+CAND_2 â†’ 0.41
 
 Conflict:
 Amount agrees with CAND_1.
@@ -661,7 +661,7 @@ Do not stop at 50.
 A better demo dataset:
 
 ```text
-250–1,000 records
+250â€“1,000 records
 ```
 
 with controlled ground truth.
@@ -787,19 +787,19 @@ Numbers above are **illustrative only**. They must never be presented as real re
 
 The competitive danger is building something that looks like:
 
-> "Upload CSV → AI reconciles it."
+> "Upload CSV â†’ AI reconciles it."
 
 Many teams can do that.
 
 Our differentiators should be architectural.
 
-## Differentiator 1 — Evidence-first AI
+## Differentiator 1 â€” Evidence-first AI
 
 The agent cannot invent an explanation without linked records.
 
 ---
 
-## Differentiator 2 — Hybrid intelligence
+## Differentiator 2 â€” Hybrid intelligence
 
 ```text
 Rules
@@ -819,13 +819,13 @@ LLM only
 
 ---
 
-## Differentiator 3 — Abstention
+## Differentiator 3 â€” Abstention
 
 The system earns trust by knowing when **not** to decide.
 
 ---
 
-## Differentiator 4 — Reconciliation graph
+## Differentiator 4 â€” Reconciliation graph
 
 Represent financial relationships as a graph:
 
@@ -847,7 +847,7 @@ This allows structural evidence retrieval.
 
 ---
 
-## Differentiator 5 — Counterfactual explanation
+## Differentiator 5 â€” Counterfactual explanation
 
 For difficult cases, show:
 
@@ -862,37 +862,37 @@ This is much closer to finance-ops reasoning.
 
 ---
 
-## Differentiator 6 — Replayable audit
+## Differentiator 6 â€” Replayable audit
 
 A reviewer should be able to click:
 
 ```text
 Decision
- ↓
+ â†“
 Evidence
- ↓
+ â†“
 Rules
- ↓
+ â†“
 Model score
- ↓
+ â†“
 Agent/tool calls
- ↓
+ â†“
 Final outcome
 ```
 
 ---
 
-## Differentiator 7 — Benchmark mode
+## Differentiator 7 â€” Benchmark mode
 
 The GitHub repo should contain:
 
 ```text
 Run benchmark
-      ↓
+      â†“
 Process hidden-style test cases
-      ↓
+      â†“
 Generate metrics
-      ↓
+      â†“
 Compare versions
 ```
 
@@ -902,7 +902,7 @@ This makes the project look like a serious engineering system rather than a demo
 
 # 14. Research & Proven Ideas
 
-## 14.1 FinBalance — 2026
+## 14.1 FinBalance â€” 2026
 
 **FinBalance: A Multi-Document Accounting Reconciliation Benchmark**
 
@@ -922,7 +922,7 @@ https://arxiv.org/abs/2606.15949
 
 ---
 
-## 14.2 FinRCA-Bench — 2026
+## 14.2 FinRCA-Bench â€” 2026
 
 **FinRCA-Bench: Benchmarking Evidence Retrieval and Reasoning for Financial AI Systems**
 
@@ -950,7 +950,7 @@ https://arxiv.org/abs/2608.18534
 
 ---
 
-## 14.3 Machine learning for financial reconciliation — 2026
+## 14.3 Machine learning for financial reconciliation â€” 2026
 
 A 2026 framework discusses supervised, unsupervised and semi-supervised ML for large-scale financial reconciliation, including anomaly detection, feature engineering, class imbalance and explainability.
 
@@ -970,7 +970,7 @@ Research on payment systems uses a layered architecture:
 
 ```text
 supervised screening
-        ↓
+        â†“
 unsupervised anomaly detection
 ```
 
@@ -990,7 +990,7 @@ https://www.bis.org/publ/work1188.htm
 
 ---
 
-## 14.5 AI + RPA reconciliation — 2025
+## 14.5 AI + RPA reconciliation â€” 2025
 
 Research on multi-agency payment reconciliation discusses combining:
 
@@ -1013,7 +1013,7 @@ https://ijamjournal.org/ijam/publication/index.php/ijam/article/view/944
 
 ---
 
-## 14.6 AI-driven reconciliation agents — 2025
+## 14.6 AI-driven reconciliation agents â€” 2025
 
 A 2025 review discusses AI-driven reconciliation, anomaly detection, explainability, compliance and cloud-native financial pipelines.
 
@@ -1023,7 +1023,7 @@ https://irjaeh.com/index.php/journal/article/view/1043?articlesBySimilarityPage=
 
 ---
 
-## 14.7 Finance-agent benchmark — 2025
+## 14.7 Finance-agent benchmark â€” 2025
 
 The Finance Agent Benchmark evaluates LLM agents on difficult finance research tasks and shows that high-stakes finance agents still have significant reliability limitations.
 
@@ -1037,7 +1037,7 @@ https://arxiv.org/abs/2508.00828
 
 ---
 
-## 14.8 LLM consistency in finance — 2025
+## 14.8 LLM consistency in finance â€” 2025
 
 Research on LLM consistency across finance/accounting tasks found task-dependent variability and showed that repeated runs / aggregation can improve consistency.
 
@@ -1053,7 +1053,7 @@ https://arxiv.org/abs/2503.16974
 
 # 15. Learning Roadmap
 
-## Phase 1 — Finance fundamentals
+## Phase 1 â€” Finance fundamentals
 
 Learn:
 
@@ -1075,7 +1075,7 @@ Goal:
 
 ---
 
-## Phase 2 — Data reconciliation
+## Phase 2 â€” Data reconciliation
 
 Learn:
 
@@ -1100,7 +1100,7 @@ and reconcile them.
 
 ---
 
-## Phase 3 — ML matching
+## Phase 3 â€” ML matching
 
 Learn:
 
@@ -1117,7 +1117,7 @@ Important:
 
 ---
 
-## Phase 4 — Agent engineering
+## Phase 4 â€” Agent engineering
 
 Learn:
 
@@ -1134,7 +1134,7 @@ The agent should operate inside explicit boundaries.
 
 ---
 
-## Phase 5 — Retrieval
+## Phase 5 â€” Retrieval
 
 Learn:
 
@@ -1148,7 +1148,7 @@ For this problem, relational/graph retrieval can be more useful than generic vec
 
 ---
 
-## Phase 6 — Evaluation
+## Phase 6 â€” Evaluation
 
 Learn:
 
@@ -1167,9 +1167,9 @@ This is one of the most important phases.
 
 # 16. Videos / Tutorials
 
-## Automated Bank Reconciliation — 2025
+## Automated Bank Reconciliation â€” 2025
 
-**Automated Bank Reconciliation — How I created an AI-powered app**
+**Automated Bank Reconciliation â€” How I created an AI-powered app**
 
 Useful for understanding the end-to-end reconciliation UX and workflow.
 
@@ -1187,7 +1187,7 @@ Topics shown include:
 
 ---
 
-## GST Reconciliation with AI — 2026
+## GST Reconciliation with AI â€” 2026
 
 **AI Karega GST Reconciliation | No Paid Software Needed**
 
@@ -1303,7 +1303,7 @@ The official page states that this is a student-only program and that applicants
 
 It also states:
 
-- ₹75,000 monthly stipend
+- â‚¹75,000 monthly stipend
 - 6 or 12 months
 - in-person in Bangalore
 - no aptitude test
@@ -1386,7 +1386,7 @@ https://www.postman.com/razorpaydev/razorpay-public-workspace/documentation/mfu7
 
 # 19. Build Plan
 
-## Sprint 0 — Understand
+## Sprint 0 â€” Understand
 
 - [ ] Read official Track 04 specification
 - [ ] Learn reconciliation terminology
@@ -1397,17 +1397,17 @@ https://www.postman.com/razorpaydev/razorpay-public-workspace/documentation/mfu7
 
 ---
 
-## Sprint 1 — Baseline
+## Sprint 1 â€” Baseline
 
 Build:
 
 ```text
 CSV ingestion
-↓
+â†“
 normalization
-↓
+â†“
 exact matching
-↓
+â†“
 basic exception list
 ```
 
@@ -1419,7 +1419,7 @@ Goal:
 
 ---
 
-## Sprint 2 — Intelligent matching
+## Sprint 2 â€” Intelligent matching
 
 Add:
 
@@ -1432,7 +1432,7 @@ Benchmark against the baseline.
 
 ---
 
-## Sprint 3 — Evidence layer
+## Sprint 3 â€” Evidence layer
 
 Add:
 
@@ -1444,7 +1444,7 @@ Add:
 
 ---
 
-## Sprint 4 — Agent
+## Sprint 4 â€” Agent
 
 Add:
 
@@ -1456,7 +1456,7 @@ Add:
 
 ---
 
-## Sprint 5 — Dashboard
+## Sprint 5 â€” Dashboard
 
 Build:
 
@@ -1495,7 +1495,7 @@ Timestamp
 
 ---
 
-## Sprint 6 — Benchmark
+## Sprint 6 â€” Benchmark
 
 Generate several batches.
 
@@ -1511,7 +1511,7 @@ Batch E: unseen combinations
 
 ---
 
-## Sprint 7 — Demo hardening
+## Sprint 7 â€” Demo hardening
 
 Test:
 
@@ -1531,7 +1531,7 @@ Test:
 
 The demo should tell a story.
 
-## Scene 1 — The finance problem
+## Scene 1 â€” The finance problem
 
 Show:
 
@@ -1543,7 +1543,7 @@ multiple discrepancies
 
 ---
 
-## Scene 2 — One clean match
+## Scene 2 â€” One clean match
 
 Click a matched transaction.
 
@@ -1551,7 +1551,7 @@ Show evidence.
 
 ---
 
-## Scene 3 — One hard case
+## Scene 3 â€” One hard case
 
 Show a transaction with two plausible candidates.
 
@@ -1564,8 +1564,8 @@ Candidate A: 0.52
 Candidate B: 0.49
 
 Conflict:
-amount → A
-reference → B
+amount â†’ A
+reference â†’ B
 
 Decision:
 ESCALATE
@@ -1575,7 +1575,7 @@ This is a strong trust moment.
 
 ---
 
-## Scene 4 — Agent investigation
+## Scene 4 â€” Agent investigation
 
 Let the agent retrieve:
 
@@ -1590,7 +1590,7 @@ and explain the discrepancy.
 
 ---
 
-## Scene 5 — Batch result
+## Scene 5 â€” Batch result
 
 Show the full evaluation.
 
@@ -1630,7 +1630,7 @@ The README / demo should make the following impossible to miss.
 
 A winning system should show controlled failure.
 
-## Failure 1 — Ambiguous candidates
+## Failure 1 â€” Ambiguous candidates
 
 Expected:
 
@@ -1640,7 +1640,7 @@ ABSTAIN
 
 ---
 
-## Failure 2 — Missing source
+## Failure 2 â€” Missing source
 
 Expected:
 
@@ -1650,7 +1650,7 @@ E001 Missing source record
 
 ---
 
-## Failure 3 — Duplicate
+## Failure 3 â€” Duplicate
 
 Expected:
 
@@ -1660,7 +1660,7 @@ E003 Duplicate transaction
 
 ---
 
-## Failure 4 — Amount mismatch
+## Failure 4 â€” Amount mismatch
 
 Expected:
 
@@ -1670,7 +1670,7 @@ E002 Amount mismatch
 
 ---
 
-## Failure 5 — LLM unavailable
+## Failure 5 â€” LLM unavailable
 
 Expected:
 
@@ -1685,14 +1685,14 @@ This proves the LLM is not a single point of failure.
 
 ---
 
-## Failure 6 — Duplicate webhook
+## Failure 6 â€” Duplicate webhook
 
 Expected:
 
 ```text
 event_id already processed
-→ ignore duplicate
-→ preserve idempotency
+â†’ ignore duplicate
+â†’ preserve idempotency
 ```
 
 ---
@@ -1701,52 +1701,52 @@ event_id already processed
 
 ```text
 ledgerlens/
-│
-├── README.md
-│
-├── docs/
-│   ├── architecture.md
-│   ├── problem.md
-│   ├── research.md
-│   ├── evaluation.md
-│   ├── finance-glossary.md
-│   └── demo-script.md
-│
-├── data/
-│   ├── schemas/
-│   ├── synthetic/
-│   └── README.md
-│
-├── src/
-│   ├── ingestion/
-│   ├── normalization/
-│   ├── matching/
-│   ├── anomaly/
-│   ├── retrieval/
-│   ├── agents/
-│   ├── audit/
-│   ├── evaluation/
-│   └── api/
-│
-├── frontend/
-│
-├── tests/
-│   ├── unit/
-│   ├── integration/
-│   ├── benchmark/
-│   └── failure_cases/
-│
-├── notebooks/
-│
-├── scripts/
-│   ├── generate_dataset.py
-│   ├── run_benchmark.py
-│   └── generate_report.py
-│
-├── docker/
-│
-└── .github/
-    └── workflows/
+â”‚
+â”œâ”€â”€ README.md
+â”‚
+â”œâ”€â”€ docs/
+â”‚   â”œâ”€â”€ architecture.md
+â”‚   â”œâ”€â”€ problem.md
+â”‚   â”œâ”€â”€ research.md
+â”‚   â”œâ”€â”€ evaluation.md
+â”‚   â”œâ”€â”€ finance-glossary.md
+â”‚   â””â”€â”€ demo-script.md
+â”‚
+â”œâ”€â”€ data/
+â”‚   â”œâ”€â”€ schemas/
+â”‚   â”œâ”€â”€ synthetic/
+â”‚   â””â”€â”€ README.md
+â”‚
+â”œâ”€â”€ src/
+â”‚   â”œâ”€â”€ ingestion/
+â”‚   â”œâ”€â”€ normalization/
+â”‚   â”œâ”€â”€ matching/
+â”‚   â”œâ”€â”€ anomaly/
+â”‚   â”œâ”€â”€ retrieval/
+â”‚   â”œâ”€â”€ agents/
+â”‚   â”œâ”€â”€ audit/
+â”‚   â”œâ”€â”€ evaluation/
+â”‚   â””â”€â”€ api/
+â”‚
+â”œâ”€â”€ frontend/
+â”‚
+â”œâ”€â”€ tests/
+â”‚   â”œâ”€â”€ unit/
+â”‚   â”œâ”€â”€ integration/
+â”‚   â”œâ”€â”€ benchmark/
+â”‚   â””â”€â”€ failure_cases/
+â”‚
+â”œâ”€â”€ notebooks/
+â”‚
+â”œâ”€â”€ scripts/
+â”‚   â”œâ”€â”€ generate_dataset.py
+â”‚   â”œâ”€â”€ run_benchmark.py
+â”‚   â””â”€â”€ generate_report.py
+â”‚
+â”œâ”€â”€ docker/
+â”‚
+â””â”€â”€ .github/
+    â””â”€â”€ workflows/
 ```
 
 ---
@@ -1809,11 +1809,11 @@ ledgerlens/
 
 # 25. Links & Research Library
 
-## 🏆 Official
+## ðŸ† Official
 
 - Razorpay AI Buildathon: https://razorpay.com/buildathon/
 
-## 💳 Razorpay
+## ðŸ’³ Razorpay
 
 - Payments Quickstart: https://razorpay.com/docs/payments/quickstart/
 - Test vs Live Modes: https://razorpay.com/docs/payments/dashboard/test-live-modes/
@@ -1824,10 +1824,10 @@ ledgerlens/
 - Razorpay Postman Workspace: https://www.postman.com/razorpaydev/razorpay-public-workspace/documentation/mfu7vaw/razorpay-apis
 - RazorpayX Test Mode reference: https://d6xcmfyh68wv8.cloudfront.net/docs/x/get-started/test-mode/
 
-## 📄 Research
+## ðŸ“„ Research
 
-- FinBalance — Multi-Document Accounting Reconciliation Benchmark (2026): https://arxiv.org/abs/2606.15949
-- FinRCA-Bench — Evidence Retrieval & Reasoning for Financial AI (2026): https://arxiv.org/abs/2608.18534
+- FinBalance â€” Multi-Document Accounting Reconciliation Benchmark (2026): https://arxiv.org/abs/2606.15949
+- FinRCA-Bench â€” Evidence Retrieval & Reasoning for Financial AI (2026): https://arxiv.org/abs/2608.18534
 - ML for Enterprise Financial Reconciliation (2026): https://www.researchgate.net/publication/407092252_Leveraging_Machine_Learning_for_Anomaly_Detection_in_Enterprise_Financial_Reconciliation_A_Framework_for_Large-Scale_Discrepancy_Resolution
 - ML anomaly detection in payment systems: https://www.sciencedirect.com/science/article/pii/S2405918825000157
 - BIS payment-system anomaly detection: https://www.bis.org/publ/work1188.htm
@@ -1839,12 +1839,12 @@ ledgerlens/
 - Intelligent order matching & reconciliation (2026): https://www.researchgate.net/publication/407104022_Reducing_Financial_Losses_Through_Intelligent_Order_Matching_and_Reconciliation_Systems
 - Structured financial reconciliation / anomaly detection (2026): https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6289499
 
-## 🎥 Videos
+## ðŸŽ¥ Videos
 
-- Automated Bank Reconciliation — AI-powered app: https://www.youtube.com/watch?v=4zED_mHUJPE
-- AI GST Reconciliation — 2026: https://www.youtube.com/watch?v=Xzlj7xUxww0
+- Automated Bank Reconciliation â€” AI-powered app: https://www.youtube.com/watch?v=4zED_mHUJPE
+- AI GST Reconciliation â€” 2026: https://www.youtube.com/watch?v=Xzlj7xUxww0
 
-## 🗄️ Data / Analytics
+## ðŸ—„ï¸ Data / Analytics
 
 - DuckDB documentation: https://duckdb.org/docs/
 
@@ -1863,51 +1863,51 @@ It should be:
 The architecture we are aiming for:
 
 ```text
-                  ┌─────────────────────────┐
-                  │   MULTI-SOURCE DATA     │
-                  └────────────┬────────────┘
-                               ↓
-                  ┌─────────────────────────┐
-                  │   NORMALIZATION         │
-                  └────────────┬────────────┘
-                               ↓
-                  ┌─────────────────────────┐
-                  │ DETERMINISTIC MATCHING  │
-                  └────────────┬────────────┘
-                               ↓
-                  ┌─────────────────────────┐
-                  │ ML / PROBABILISTIC      │
-                  │ MATCHING + ANOMALIES    │
-                  └────────────┬────────────┘
-                               ↓
-                  ┌─────────────────────────┐
-                  │ EVIDENCE / GRAPH        │
-                  │ RETRIEVAL               │
-                  └────────────┬────────────┘
-                               ↓
-                  ┌─────────────────────────┐
-                  │ BOUNDED FINANCE AGENT   │
-                  └────────────┬────────────┘
-                               ↓
-              ┌────────────────┴────────────────┐
-              ↓                                 ↓
+                  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                  â”‚   MULTI-SOURCE DATA     â”‚
+                  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                               â†“
+                  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                  â”‚   NORMALIZATION         â”‚
+                  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                               â†“
+                  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                  â”‚ DETERMINISTIC MATCHING  â”‚
+                  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                               â†“
+                  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                  â”‚ ML / PROBABILISTIC      â”‚
+                  â”‚ MATCHING + ANOMALIES    â”‚
+                  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                               â†“
+                  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                  â”‚ EVIDENCE / GRAPH        â”‚
+                  â”‚ RETRIEVAL               â”‚
+                  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                               â†“
+                  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                  â”‚ BOUNDED FINANCE AGENT   â”‚
+                  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                               â†“
+              â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+              â†“                                 â†“
        HIGH CONFIDENCE                    LOW CONFIDENCE
-              ↓                                 ↓
+              â†“                                 â†“
         AUTO RESOLVE                       ABSTAIN
-              ↓                                 ↓
-              └──────────────┬──────────────────┘
-                             ↓
-                    ┌─────────────────┐
-                    │ AUDIT LEDGER    │
-                    └────────┬────────┘
-                             ↓
-                    ┌─────────────────┐
-                    │ BATCH METRICS   │
-                    └────────┬────────┘
-                             ↓
-                    ┌─────────────────┐
-                    │ HUMAN + JUDGE   │
-                    └─────────────────┘
+              â†“                                 â†“
+              â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                             â†“
+                    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                    â”‚ AUDIT LEDGER    â”‚
+                    â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                             â†“
+                    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                    â”‚ BATCH METRICS   â”‚
+                    â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                             â†“
+                    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                    â”‚ HUMAN + JUDGE   â”‚
+                    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ## The three things we should optimize for
@@ -1926,7 +1926,7 @@ Never hide uncertainty.
 
 ---
 
-## 🚀 Current north-star
+## ðŸš€ Current north-star
 
 **Build less chatbot. Build more finance infrastructure.**
 
@@ -1945,4 +1945,4 @@ then the project becomes much harder to dismiss as a generic GenAI demo.
 
 ---
 
-> **Track 04 is a finance-ops engineering problem with AI inside it — not an AI demo with finance data attached.**
+> **Track 04 is a finance-ops engineering problem with AI inside it â€” not an AI demo with finance data attached.**

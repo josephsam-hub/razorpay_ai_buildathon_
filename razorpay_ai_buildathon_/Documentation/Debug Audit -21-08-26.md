@@ -1,4 +1,4 @@
-# Git Audit Log — 21-08-2026
+# Git Audit Log â€” 21-08-2026
 
 ## Repository Status
 
@@ -10,7 +10,7 @@
 
 ```text
 Razorpay_Track04_AI_Finance_Controller_Interactive_README.md
-        ↓
+        â†“
 Documentation/Documentation-21-08-26.md
 ```
 
@@ -37,16 +37,16 @@ Message: commited
 
 ```text
 razorpay_ai_buildathon_
-│
-├── Documentation/
-│   └── Documentation-21-08-26.md
-│
-└── ...
+â”‚
+â”œâ”€â”€ Documentation/
+â”‚   â””â”€â”€ Documentation-21-08-26.md
+â”‚
+â””â”€â”€ ...
 ```
 
 ## Audit Result
 
-**Status: ✅ SUCCESS**
+**Status: âœ… SUCCESS**
 
 The documentation was moved to the `Documentation/` directory, committed successfully, and pushed to GitHub without errors.
 
